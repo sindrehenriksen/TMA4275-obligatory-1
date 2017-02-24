@@ -1,0 +1,8 @@
+% <<echo=FALSE>>=
+% read_chunk("../.R/oblig1.R") 
+% @
+
+<<Task 1>>=
+@
+
+delta er $\Sexpr{delta}$

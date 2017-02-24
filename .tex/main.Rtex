@@ -21,8 +21,15 @@
 % \tableofcontents
 % \newpage
 
+<<echo=FALSE>>=
+read_chunk("../.R/oblig1.R") 
+@
+
+<<Preliminary>>=
+@
+
 \section{}
-\input{task1.tex}
+\input{task1.Rtex}
 
 \end{document}
 
