@@ -27,29 +27,35 @@ Z_NA <- cumsum(R_KM$n.event[unique_time_event_indices]/
 plot(unique_time_event_weeks, Z_NA)
 
 n <- length(time)
-r <- length(R_KM$n.event[R_KM$n.event!=0])  # no. of events
-Tau <- vector(mode="double", length=r)
+event_n <- length(R_KM$n.event[R_KM$n.event!=0])  # no. of events
+
+Tau <- vector(mode="double", length=event_n)
 j <- 2
 Tau[1] <- Tau[2] <- n * time[1]
+
 for (i in 2:n) {
-  if (time[i] == time[i-1]) next
-  Tau[j] <- Tau[j] + (n-i+1)*(time[i] - time[i-1])
-  if (delta[i]) {
-    if (j == r) break
+  if (time[i]!= time[i-1]) {
+    Tau[j] <- Tau[j] + (n-i+1)*(time[i] - time[i-1])
+  }
+  if (time[i] == unique_time_event_weeks[j]) {
+    if (j == event_n) {
+      print('bla')
+      break
+    }
     j <- j+1
     Tau[j] <- Tau[j-1]
   }
 }
 
-plot((1:r)/r, Tau/tail(Tau, n=1))
+plot((1:event_n)/event_n, Tau/tail(Tau, n=1))
 
 ## ---- Task 3
-W <- sum(Tau[1:(r-1)]/tail(Tau, n=1))
-Z <- (W - (r-1)/2) / sqrt((r-1)/12)
+W <- sum(Tau[1:(event_n-1)]/tail(Tau, n=1))
+Z <- (W - (event_n-1)/2) / sqrt((event_n-1)/12)
 print(pnorm(Z))
 
-W_ex_last <- sum(Tau[1:(r-2)]/Tau[r-1])
-Z_ex_last <- (W_ex_last - (r-2)/2) / sqrt((r-2)/12)
+W_ex_last <- sum(Tau[1:(event_n-2)]/Tau[event_n-1])
+Z_ex_last <- (W_ex_last - (event_n-2)/2) / sqrt((event_n-2)/12)
 F_Z_ex_last <- pnorm(Z_ex_last)
 
 ## ---- Task 4
@@ -59,6 +65,7 @@ SE_KM <- 15.6
 median_KM <- 44.5
 
 s <- sum(time)
+r <- sum(delta)
 theta_hat <- s/r
 median_theta_hat <- qexp(0.5, rate=1/theta_hat)
 SD_theta_hat <- theta_hat/sqrt(r)
@@ -73,10 +80,10 @@ l <- function(theta, r, s) { return (-r*log(theta) - s/theta) }
 curve(l(x, r, s), from=50, to=200)
 abline(v=theta_hat)
 abline(h = l(theta_hat, r, s) - pchisq(0.95, df=1)/2)
-left <- uniroot( function(x) 2*(l(theta_hat, r, s) - l(x, r, s)) - pchisq(0.95, df=1)/2, 
-                lower = 50, upper = 114)
-right <- uniroot( function(x) 2*(l(theta_hat, r, s) - l(x, r, s)) - pchisq(0.95, df=1)/2, 
-                 lower = 114, upper = 200)
+left <- uniroot( function(x) 2*(l(theta_hat, r, s) - l(x, r, s)) - pchisq(0.95, df=1), 
+                lower = 50, upper = 89)
+right <- uniroot( function(x) 2*(l(theta_hat, r, s) - l(x, r, s)) - pchisq(0.95, df=1), 
+                 lower = 89, upper = 150)
 CI_95_chisq = c(left$root, right$root)
 
 ## ---- Task 6
@@ -95,8 +102,16 @@ expfit = survreg(data ~ 1, dist="exponential")
 intercept = expfit$coefficients["(Intercept)"]
 curve(1-pexp(x, rate=exp(-intercept)), add=TRUE)
 
-# library(FAdist)
-# llogfit <- survreg(data ~ 1, dist="loglogistic")
-# intercept = llogfit$coefficients["(Intercept)"]
-# curve(1-pllog(x, shape=intercept, scale=llogfit$scale), add=TRUE)
+library(FAdist)
+llogfit <- survreg(data ~ 1, dist="loglogistic")
+intercept = llogfit$coefficients["(Intercept)"]
+curve(1-pllog(x, shape=1.5, scale=4), add=TRUE)
 
+## Task 7
+
+
+## spm
+# intercept, best fit
+# tolkning av levetider
+# CI median
+# message feb 17
